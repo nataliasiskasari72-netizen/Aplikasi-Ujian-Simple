@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>UJIAN ONLINE SMP</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 *{box-sizing:border-box;font-family:'Segoe UI',sans-serif}body{margin:0;background:#eef2ff;color:#0f172a}
 header{background:linear-gradient(135deg,#1e3a8a,#4f46e5);color:#fff;padding:18px 16px;text-align:center}
@@ -27,25 +28,20 @@ table{width:100%;border-collapse:collapse}th{background:#f8fafc;padding:10px;tex
 @media(max-width:700px){.grid2,.grid3{grid-template-columns:1fr}.school-head h1{font-size:19px;text-align:center}.school-head p{text-align:center}.school-head{flex-direction:column;gap:8px}}
 </style></head>
 <body>
-<!-- HEADER SISWA + LOGO -->
 <header id="headerSiswa">
 <div class="school-head">
 <div id="logoSiswa" class="emoji-logo">🏫</div>
 <div><h1 id="namaSekolahSiswa">SMP NEGERI 1 YOGYAKARTA</h1><p>📚 UJIAN ONLINE • 11 Mapel • Kelas 7A 7B 8A 8B 9A 9B • <span id="statusSiswa" class="status offline">Menghubungkan...</span></p></div>
 </div>
 </header>
-<!-- HEADER GURU + LOGO -->
 <header id="headerGuru" class="hidden guru-mode">
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
 <div class="school-head" style="justify-content:flex-start"><div id="logoGuru" class="emoji-logo" style="width:48px;height:48px;font-size:24px">🏫</div><div style="text-align:left"><h1 id="namaSekolahGuru" style="font-size:19px">SMP NEGERI 1 YOGYAKARTA</h1><p>👩‍🏫 PANEL GURU • Link ?guru • <span id="statusGuru" class="status offline">Menghubungkan...</span></p></div></div>
 <div style="display:flex;gap:8px"><button class="btn w" onclick="lihatSiswa()">👀 Lihat Siswa</button><button class="btn r" onclick="logoutGuru()">🔒 Logout</button></div>
 </div>
 </header>
-
 <div id="modalPass" class="modal hidden"><div class="modal-box"><div id="logoModal" style="font-size:48px">🏫</div><h2 style="margin:5px 0 0" id="namaSekolahModal">SMP NEGERI 1 YOGYAKARTA</h2><p style="color:#64748b;font-size:14px;margin:5px 0">🔒 Login Guru<br>Password default: <b>guru123</b></p><input id="inputPass" type="password" placeholder="Password Guru" style="text-align:center;font-size:16px" onkeydown="if(event.key==='Enter') cekPassword()"><p id="pesanPass" style="color:#dc2626;font-size:13px;min-height:18px"></p><button class="btn g" style="width:100%;padding:13px" onclick="cekPassword()">🔓 MASUK</button><button class="btn d" style="width:100%;padding:11px;margin-top:8px;background:#e2e8f0;color:#0f172a" onclick="window.location.href=window.location.pathname">Kembali ke Siswa</button></div></div>
-
 <div class="container">
-<!-- ===================== SISWA ===================== -->
 <div id="viewSiswa">
 <div id="page-login">
 <div class="card" style="text-align:center;padding:24px"><div style="font-size:42px">🧑‍🎓</div><h2 style="margin:5px 0">Selamat Datang di Ujian Online</h2><p style="color:#64748b;font-size:14px;margin:0" id="sambutanSekolah">SMP NEGERI 1 YOGYAKARTA • Silakan login untuk mulai ujian</p></div>
@@ -60,8 +56,6 @@ table{width:100%;border-collapse:collapse}th{background:#f8fafc;padding:10px;tex
 <div id="areaUjian" class="hidden"><div class="timer" id="timer">⏰ 60:00</div><div class="card"><h3 id="judulUjian" style="margin:0"></h3><p id="progressUjian" style="color:#64748b;font-size:13px"></p><div id="listSoalUjian"></div><button class="btn g" style="width:100%;padding:15px;font-size:17px" onclick="kumpulJawaban()">✅ KUMPULKAN JAWABAN & LIHAT NILAI</button></div></div>
 <div id="hasilUjian" class="hidden card" style="text-align:center;padding:28px"><h2>🎉 Ujian Selesai!</h2><div id="hasilDetail"></div><button class="btn d" style="width:100%" onclick="location.reload()">🔄 Kembali ke Login</button></div>
 </div>
-
-<!-- ===================== GURU ===================== -->
 <div id="viewGuru" class="hidden">
 <div class="card"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px"><h2 style="margin:0">📝 Buat Soal</h2><button class="btn o" onclick="syncNow()">🔄 Sync Sekarang</button></div>
 <div class="grid3"><div><label>Mapel (11)</label><select id="gMapel"></select></div><div><label>Kelas Tujuan</label><select id="gKelas"><option value="SEMUA">SEMUA KELAS 7A-9B</option><option>7A</option><option>7B</option><option>8A</option><option>8B</option><option>9A</option><option>9B</option></select></div><div><label>Jenis</label><select id="gJenis" onchange="toggleJenis()"><option value="pg">Pilihan Ganda</option><option value="essay">Essay</option></select></div></div>
@@ -71,7 +65,7 @@ table{width:100%;border-collapse:collapse}th{background:#f8fafc;padding:10px;tex
 <div class="grid2"><div><label>Bobot</label><input id="gBobot" type="number" value="10"></div><div><label>Guru Pengampu</label><input id="gNamaGuru" placeholder="cth: Bu Ria"></div></div><br><button class="btn g" style="width:100%;padding:14px;font-size:16px" onclick="simpanSoal()">💾 SIMPAN SOAL - Langsung Online</button><p style="text-align:center;color:#64748b;font-size:13px" id="totalSoalInfo"></p></div>
 <div class="card"><h2 style="margin:0 0 10px">📅 Atur Jadwal (Sama 7,8,9)</h2><div class="grid3"><div><label>Mapel</label><select id="jMapel"></select></div><div><label>Tanggal</label><input id="jTanggal" type="date"></div><div><label>Jam</label><input id="jJam" type="time" value="07:30"></div></div><div class="grid2"><div><label>Durasi</label><input id="jDurasi" type="number" value="60"></div><div><label>Keterangan</label><input id="jKet" placeholder="UTS - Ruang 1-6"></div></div><br><button class="btn d" style="width:100%;padding:13px" onclick="simpanJadwal()">+ TAMBAH JADWAL</button><div id="listJadwal" style="margin-top:12px"></div></div>
 <div class="card"><h3>Daftar Soal</h3><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><select id="filterSoalMapel" onchange="renderDaftarSoal()" style="flex:1"></select><button class="btn r" onclick="hapusSemuaSoal()">Hapus Semua</button><button class="btn o" onclick="contohSoal()">⚡ Contoh 11 Soal</button></div><div id="daftarSoal"></div></div>
-<div class="card"><h2 style="margin:0 0 10px">📊 Rekap Nilai - Live</h2><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"><select id="filterRekapMapel" onchange="renderRekap()" style="flex:1"></select><select id="filterRekapKelas" onchange="renderRekap()"><option value="">Semua Kelas</option><option>7A</option><option>7B</option><option>8A</option><option>8B</option><option>9A</option><option>9B</option></select><button class="btn g" onclick="exportRekap()">⬇ Excel</button><button class="btn r" onclick="hapusRekap()">Hapus Rekap</button></div><div style="overflow:auto"><table><thead><tr><th>Rank</th><th>Nama</th><th>Kelas</th><th>Mapel</th><th>Benar</th><th>Salah</th><th>Nilai</th><th>Predikat</th><th>Waktu</th></tr></thead><tbody id="tbodyRekap"></tbody></table></div><p style="font-size:13px;color:#64748b">Rata-rata: <b id="rataRekap">0</b> • Tuntas: <b id="tuntasRekap">0</b></p></div>
+<div class="card"><h2 style="margin:0 0 10px">📊 Rekap Nilai - Live</h2><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"><select id="filterRekapMapel" onchange="renderRekap()" style="flex:1"></select><select id="filterRekapKelas" onchange="renderRekap()"><option value="">Semua Kelas</option><option>7A</option><option>7B</option><option>8A</option><option>8B</option><option>9A</option><option>9B</option></select><button class="btn g" onclick="exportRekap()">⬇ Download Excel (.xlsx)</button><button class="btn o" onclick="exportPDF()">🖨️ Download / Print PDF</button><button class="btn r" onclick="hapusRekap()">Hapus Rekap</button></div><div style="overflow:auto"><table><thead><tr><th>Rank</th><th>Nama</th><th>Kelas</th><th>Mapel</th><th>Benar</th><th>Salah</th><th>Nilai</th><th>Predikat</th><th>Waktu</th></tr></thead><tbody id="tbodyRekap"></tbody></table></div><p style="font-size:13px;color:#64748b">Rata-rata: <b id="rataRekap">0</b> • Tuntas: <b id="tuntasRekap">0</b></p></div>
 <div class="card"><h3>⚙️ Pengaturan Sekolah & Password</h3>
 <label>Nama Sekolah</label><input id="inputNamaSekolah" placeholder="SMP NEGERI 1 YOGYAKARTA">
 <label>Link Logo Sekolah (URL Gambar)</label><input id="inputLogo" placeholder="https://.../logo.png atau kosongkan untuk emoji 🏫">
@@ -80,12 +74,11 @@ table{width:100%;border-collapse:collapse}th{background:#f8fafc;padding:10px;tex
 </div>
 </div>
 <p style="text-align:center;color:#cbd5e1;font-size:11px;cursor:pointer" id="footerSekolah" onclick="bukaGuruFooter()">SMP NEGERI 1 YOGYAKARTA • Ujian Online v3</p>
-
 <script>
-// ===== GANTI DISINI - NAMA & LOGO SEKOLAH =====
-const API_URL = "https://script.google.com/macros/s/AKfycbwyzY840J9eMTqpu6ohYmYSFqclaBd9GdVsm99lJ_jKnlqlBJgCuHxr6TM-70wbgOai/exec";
+// ===== GANTI DISINI - 3 HAL INI SAJA =====
+const API_URL = "https://script.google.com/macros/s/AKfycbzGPSXVl7e9mBEpq67bmP21oukccT3pJzjeL4wArQ043SqXFxcbGWVzUeHqkYVU31Ge/exec";
 let NAMA_SEKOLAH = localStorage.getItem('nama_sekolah') || "SMP NEGERI 1 YOGYAKARTA";
-let LOGO_URL = localStorage.getItem('logo_sekolah') || ""; // isi link logo, cth: "https://i.imgur.com/xxx.png" - kosongkan untuk emoji 🏫
+let LOGO_URL = localStorage.getItem('logo_sekolah') || "";
 let PASSWORD_GURU = localStorage.getItem('pass_guru') || "guru123";
 const MAPEL=["Matematika","IPA","IPS","Bahasa Indonesia","Bahasa Inggris","PPKn","Pendidikan Agama","PJOK","Seni Budaya","Informatika","Prakarya"];
 let soalDB=JSON.parse(localStorage.getItem('ujian_soal')||'[]');
@@ -93,7 +86,6 @@ let jadwalDB=JSON.parse(localStorage.getItem('ujian_jadwal')||'[]');
 let nilaiDB=JSON.parse(localStorage.getItem('ujian_nilai')||'[]');
 let soalUjianAktif=[], jawabanSiswa={}, timerInterval, sisaDetik=3600, mapelAktif='', namaAktif='', kelasAktif='';
 let IS_GURU = window.location.search.includes("guru");
-
 function applySekolah(){
   document.title = "UJIAN ONLINE - " + NAMA_SEKOLAH;
   ['namaSekolahSiswa','namaSekolahGuru','namaSekolahModal'].forEach(id=>{let e=document.getElementById(id);if(e)e.textContent=NAMA_SEKOLAH;});
@@ -101,7 +93,6 @@ function applySekolah(){
   document.getElementById('footerSekolah').textContent = NAMA_SEKOLAH + " • Ujian Online v3";
   document.getElementById('inputNamaSekolah').value = NAMA_SEKOLAH;
   document.getElementById('inputLogo').value = LOGO_URL;
-  // Logo
   if(LOGO_URL && LOGO_URL.includes('http')){
     ['logoSiswa','logoGuru'].forEach(id=>{let el=document.getElementById(id);el.innerHTML=`<img src="${LOGO_URL}" style="width:100%;height:100%;object-fit:contain;border-radius:50%;background:#fff;padding:4px" onerror="this.parentElement.textContent='🏫'">`;});
     document.getElementById('logoModal').innerHTML=`<img src="${LOGO_URL}" style="width:64px;height:64px;object-fit:contain;border-radius:50%;background:#f8fafc;padding:6px" onerror="this.parentElement.textContent='🏫'">`;
@@ -119,7 +110,6 @@ function simpanPengaturan(){
   applySekolah(); alert('✅ Pengaturan disimpan!\nSekolah: '+NAMA_SEKOLAH+'\nLogo: '+(LOGO_URL||'Emoji 🏫')+(pass?'\nPassword baru: '+pass:''));
   document.getElementById('passBaru').value='';
 }
-
 function saveLocal(){localStorage.setItem('ujian_soal',JSON.stringify(soalDB));localStorage.setItem('ujian_jadwal',JSON.stringify(jadwalDB));localStorage.setItem('ujian_nilai',JSON.stringify(nilaiDB));}
 async function pushOnline(type,data){saveLocal();if(!API_URL.includes('http'))return;try{await fetch(API_URL,{method:'POST',body:JSON.stringify({type,data})});}catch(e){}}
 async function syncNow(){
@@ -159,7 +149,42 @@ async function simpanJadwal(){let j={mapel:document.getElementById('jMapel').val
 function renderJadwalGuru(){let html=jadwalDB.map((j,i)=>`<div class="jadwal-item"><div><b>${j.mapel}</b> <span class="badge">7A-9B</span><br><span style="font-size:13px;color:#64748b">📅 ${j.tanggal} • 🕐 ${j.jam} • ⏳ ${j.durasi} menit • ${j.ket}</span></div><button class="btn r" onclick="hapusJadwal(${i})">Hapus</button></div>`).join('');document.getElementById('listJadwal').innerHTML=html||'<p style="color:#94a3b8">Belum ada jadwal.</p>';}
 async function hapusJadwal(i){jadwalDB.splice(i,1);await pushOnline('Jadwal',jadwalDB);renderGuruAll();}
 function renderRekap(){let fm=document.getElementById('filterRekapMapel').value;let fk=document.getElementById('filterRekapKelas').value;let list=nilaiDB.filter(n=>(!fm||n.mapel==fm)&&(!fk||n.kelas==fk)).sort((a,b)=>b.nilai-a.nilai);document.getElementById('tbodyRekap').innerHTML=list.map((n,i)=>`<tr><td><b>${i+1}</b></td><td>${n.nama}</td><td>${n.kelas}</td><td>${n.mapel}</td><td style="color:#16a34a;font-weight:700">${n.benar}</td><td style="color:#dc2626">${n.salah}</td><td><b>${n.nilai}</b></td><td>${n.nilai>=90?'A':n.nilai>=80?'B':n.nilai>=75?'C':'D'}</td><td style="font-size:12px">${n.waktu}</td></tr>`).join('')||'<tr><td colspan="9" style="text-align:center;padding:20px">Belum ada nilai.</td></tr>';let avg=nilaiDB.length?(nilaiDB.reduce((a,b)=>a+b.nilai,0)/nilaiDB.length).toFixed(1):0;document.getElementById('rataRekap').innerText=avg;document.getElementById('tuntasRekap').innerText=nilaiDB.filter(n=>n.nilai>=75).length+' / '+nilaiDB.length;}
-function exportRekap(){let csv='Nama,Kelas,Mapel,Benar,Salah,Nilai,Waktu\n';nilaiDB.forEach(n=>csv+=`"${n.nama}",${n.kelas},${n.mapel},${n.benar},${n.salah},${n.nilai},"${n.waktu}"\n`);let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='rekap-ujian.csv';a.click();}
+function exportRekap(){
+  if(!nilaiDB.length){ alert('Belum ada nilai!'); return; }
+  let fm=document.getElementById('filterRekapMapel').value; let fk=document.getElementById('filterRekapKelas').value;
+  let list=nilaiDB.filter(n=>(!fm||n.mapel==fm)&&(!fk||n.kelas==fk)).sort((a,b)=>b.nilai-a.nilai);
+  let data=[];
+  data.push([NAMA_SEKOLAH]);
+  data.push(["REKAP NILAI UJIAN ONLINE - " + (fm || "SEMUA MAPEL") + " - " + (fk || "SEMUA KELAS")]);
+  data.push(["Tanggal Export: " + new Date().toLocaleString('id-ID')]);
+  data.push([]);
+  data.push(["Rank","Nama Siswa","Kelas","Mapel","Benar","Salah","Nilai","Predikat","Keterangan","Waktu Ujian"]);
+  list.forEach((n,i)=>{let p=n.nilai>=90?'A - Sangat Baik':n.nilai>=80?'B - Baik':n.nilai>=75?'C - Cukup':'D - Remedial';let k=n.nilai>=75?'TUNTAS':'REMEDIAL';data.push([i+1,n.nama,n.kelas,n.mapel,n.benar,n.salah,n.nilai,p,k,n.waktu]);});
+  data.push([]);
+  let avg=(list.reduce((a,b)=>a+b.nilai,0)/list.length).toFixed(1);
+  let tuntas=list.filter(n=>n.nilai>=75).length;
+  data.push(["","","","Rata-rata","","",avg,"",tuntas+" Tuntas / "+list.length+" Siswa",""]);
+  data.push(["","","","Nilai Tertinggi","","",Math.max(...list.map(n=>n.nilai)),"","",""]);
+  data.push(["","","","Nilai Terendah","","",Math.min(...list.map(n=>n.nilai)),"","",""]);
+  let ws=XLSX.utils.aoa_to_sheet(data);
+  ws['!cols']=[{wch:6},{wch:25},{wch:8},{wch:18},{wch:8},{wch:8},{wch:8},{wch:18},{wch:14},{wch:22}];
+  let wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"Rekap Nilai");
+  let perKelas={}; list.forEach(n=>{if(!perKelas[n.kelas]) perKelas[n.kelas]={kelas:n.kelas,jumlah:0,total:0,tuntas:0};perKelas[n.kelas].jumlah++;perKelas[n.kelas].total+=n.nilai;if(n.nilai>=75)perKelas[n.kelas].tuntas++;});
+  let dataKelas=[["Kelas","Jumlah Siswa","Rata-rata","Tuntas","Remedial"]]; Object.values(perKelas).forEach(k=>{dataKelas.push([k.kelas,k.jumlah,(k.total/k.jumlah).toFixed(1),k.tuntas,k.jumlah-k.tuntas]);});
+  let ws2=XLSX.utils.aoa_to_sheet(dataKelas); ws2['!cols']=[{wch:10},{wch:15},{wch:12},{wch:10},{wch:12}]; XLSX.utils.book_append_sheet(wb,ws2,"Rekap Per Kelas");
+  let namaFile="Rekap-"+(fm||"Semua-Mapel")+"-"+(fk||"Semua-Kelas")+"-"+NAMA_SEKOLAH.replace(/ /g,'-')+".xlsx";
+  XLSX.writeFile(wb,namaFile); alert("✅ Excel berhasil didownload!\n"+namaFile);
+}
+function exportPDF(){
+  let fm=document.getElementById('filterRekapMapel').value; let fk=document.getElementById('filterRekapKelas').value;
+  let list=nilaiDB.filter(n=>(!fm||n.mapel==fm)&&(!fk||n.kelas==fk)).sort((a,b)=>b.nilai-a.nilai);
+  let html=`<html><head><title>Rekap ${NAMA_SEKOLAH}</title><style>body{font-family:Arial}table{width:100%;border-collapse:collapse}th,td{border:1px solid #000;padding:8px;text-align:left}th{background:#1e3a8a;color:#fff}h2,h3{margin:5px 0}</style></head><body>
+  <h2>${NAMA_SEKOLAH}</h2><h3>REKAP NILAI UJIAN ONLINE - ${fm||'Semua Mapel'} - ${fk||'Semua Kelas'}</h3><p>Tanggal: ${new Date().toLocaleString('id-ID')}</p>
+  <table><tr><th>Rank</th><th>Nama</th><th>Kelas</th><th>Mapel</th><th>Benar</th><th>Salah</th><th>Nilai</th><th>Predikat</th></tr>`;
+  list.forEach((n,i)=>{ html+=`<tr><td>${i+1}</td><td>${n.nama}</td><td>${n.kelas}</td><td>${n.mapel}</td><td>${n.benar}</td><td>${n.salah}</td><td><b>${n.nilai}</b></td><td>${n.nilai>=75?'TUNTAS':'REMEDIAL'}</td></tr>`; });
+  html+=`</table><br><p>Guru Pengampu: ___________________ &nbsp;&nbsp; Kepala Sekolah: ___________________</p><script>window.print()<\/script></body></html>`;
+  let w=window.open('','_blank'); w.document.write(html); w.document.close();
+}
 async function hapusRekap(){if(confirm('Hapus semua rekap?')){nilaiDB=[];await pushOnline('Nilai',nilaiDB);renderGuruAll();}}
 function renderSiswaAll(){renderJadwalSiswa();showJadwalInfo();}
 function renderJadwalSiswa(){let html=jadwalDB.map(j=>`<div class="jadwal-item"><div><b>${j.mapel}</b> <span class="badge">7A-9B • Sama</span><br><span style="font-size:13px;color:#64748b">📅 ${j.tanggal} • 🕐 ${j.jam} • ⏳ ${j.durasi} menit • ${j.ket}</span></div></div>`).join('');document.getElementById('jadwalHome').innerHTML=html||'<p style="color:#94a3b8">Belum ada jadwal dari guru.</p>';}
@@ -168,7 +193,6 @@ function mulaiUjian(){let nama=document.getElementById('sNama').value.trim();if(
 function pilihJawaban(i,val,el){jawabanSiswa[i]=val;el.closest('.soal-box').querySelectorAll('.opt').forEach(e=>e.classList.remove('selected'));el.closest('.opt').classList.add('selected');}
 function startTimer(){timerInterval=setInterval(()=>{sisaDetik--;let m=Math.floor(sisaDetik/60);let d=sisaDetik%60;document.getElementById('timer').innerText=`⏰ Sisa: ${m}:${String(d).padStart(2,'0')} • ${mapelAktif}`;if(sisaDetik<=0){clearInterval(timerInterval);alert('Waktu habis! Auto kumpul.');kumpulJawaban();}},1000);}
 async function kumpulJawaban(){clearInterval(timerInterval);let benar=0,totalBobot=0,dapatBobot=0,total=soalUjianAktif.length;soalUjianAktif.forEach((s,i)=>{totalBobot+=+s.bobot||10;if(s.jenis=='pg'&&jawabanSiswa[i]==s.kunci){benar++;dapatBobot+=+s.bobot||10;}if(s.jenis=='essay'&&jawabanSiswa[i]&&jawabanSiswa[i].length>10){dapatBobot+=(+s.bobot||10)*0.8;benar+=0.8;}});let nilai=totalBobot?Math.round(dapatBobot/totalBobot*100):0;let predikat=nilai>=90?'A - Sangat Baik':nilai>=80?'B - Baik':nilai>=75?'C - Cukup':'D - Remedial';nilaiDB.push({nama:namaAktif,kelas:kelasAktif,mapel:mapelAktif,benar:Math.round(benar),salah:total-Math.round(benar),nilai:nilai,waktu:new Date().toLocaleString('id-ID')});await pushOnline('Nilai',nilaiDB);document.getElementById('areaUjian').classList.add('hidden');let h=document.getElementById('hasilUjian');h.classList.remove('hidden');document.getElementById('hasilDetail').innerHTML=`<p>${namaAktif} • ${kelasAktif} • ${mapelAktif} • ${NAMA_SEKOLAH}</p><div style="font-size:64px;font-weight:800;color:#4f46e5">${nilai}</div><p><b>${predikat}</b><br>Benar: ${Math.round(benar)} dari ${total}</p><p style="font-size:13px;color:#64748b">Nilai sudah masuk ke guru.</p>`;window.scrollTo(0,0);}
-// INIT
 let opt=MAPEL.map(m=>`<option>${m}</option>`).join('');
 document.getElementById('gMapel').innerHTML=opt;document.getElementById('jMapel').innerHTML=opt;document.getElementById('sMapel').innerHTML=opt;
 document.getElementById('filterSoalMapel').innerHTML='<option value="">Semua Mapel</option>'+opt;
