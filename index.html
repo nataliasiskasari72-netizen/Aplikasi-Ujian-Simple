@@ -65,7 +65,7 @@ table{width:100%;border-collapse:collapse}th{background:#f8fafc;padding:10px;tex
 <div class="grid2"><div><label>Bobot</label><input id="gBobot" type="number" value="10"></div><div><label>Guru Pengampu</label><input id="gNamaGuru" placeholder="cth: Bu Ria"></div></div><br><button class="btn g" style="width:100%;padding:14px;font-size:16px" onclick="simpanSoal()">💾 SIMPAN SOAL - Langsung Online</button><p style="text-align:center;color:#64748b;font-size:13px" id="totalSoalInfo"></p></div>
 <div class="card"><h2 style="margin:0 0 10px">📅 Atur Jadwal (Sama 7,8,9)</h2><div class="grid3"><div><label>Mapel</label><select id="jMapel"></select></div><div><label>Tanggal</label><input id="jTanggal" type="date"></div><div><label>Jam</label><input id="jJam" type="time" value="07:30"></div></div><div class="grid2"><div><label>Durasi</label><input id="jDurasi" type="number" value="60"></div><div><label>Keterangan</label><input id="jKet" placeholder="UTS - Ruang 1-6"></div></div><br><button class="btn d" style="width:100%;padding:13px" onclick="simpanJadwal()">+ TAMBAH JADWAL</button><div id="listJadwal" style="margin-top:12px"></div></div>
 <div class="card"><h3>Daftar Soal</h3><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><select id="filterSoalMapel" onchange="renderDaftarSoal()" style="flex:1"></select><button class="btn r" onclick="hapusSemuaSoal()">Hapus Semua</button><button class="btn o" onclick="contohSoal()">⚡ Contoh 11 Soal</button></div><div id="daftarSoal"></div></div>
-<div class="card"><h2 style="margin:0 0 10px">📊 Rekap Nilai - Live</h2><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"><select id="filterRekapMapel" onchange="renderRekap()" style="flex:1"></select><select id="filterRekapKelas" onchange="renderRekap()"><option value="">Semua Kelas</option><option>7A</option><option>7B</option><option>8A</option><option>8B</option><option>9A</option><option>9B</option></select><button class="btn g" onclick="exportRekap()">⬇ Download Excel (.xlsx)</button><button class="btn o" onclick="exportPDF()">🖨️ Download / Print PDF</button><button class="btn r" onclick="hapusRekap()">Hapus Rekap</button></div><div style="overflow:auto"><table><thead><tr><th>Rank</th><th>Nama</th><th>Kelas</th><th>Mapel</th><th>Benar</th><th>Salah</th><th>Nilai</th><th>Predikat</th><th>Waktu</th></tr></thead><tbody id="tbodyRekap"></tbody></table></div><p style="font-size:13px;color:#64748b">Rata-rata: <b id="rataRekap">0</b> • Tuntas: <b id="tuntasRekap">0</b> • <span id="debugNilai" style="color:#dc2626"></span></p><button class="btn o" onclick="tesKirimNilai()" style="width:100%;margin-top:8px">🧪 TES KIRIM NILAI KE SHEETS (Klik untuk cek)</button></div>
+<div class="card"><h2 style="margin:0 0 10px">📊 Rekap Nilai - Live</h2><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"><select id="filterRekapMapel" onchange="renderRekap()" style="flex:1"></select><select id="filterRekapKelas" onchange="renderRekap()"><option value="">Semua Kelas</option><option>7A</option><option>7B</option><option>8A</option><option>8B</option><option>9A</option><option>9B</option></select><button class="btn g" onclick="exportRekap()">⬇ Download Excel (.xlsx)</button><button class="btn o" onclick="exportPDF()">🖨️ Download / Print PDF</button><button class="btn r" onclick="hapusRekap()">Hapus Rekap</button></div><div style="overflow:auto"><table><thead><tr><th>Rank</th><th>Nama</th><th>Kelas</th><th>Mapel</th><th>Benar</th><th>Salah</th><th>Nilai</th><th>Predikat</th><th>Waktu</th></tr></thead><tbody id="tbodyRekap"></tbody></table></div><p style="font-size:13px;color:#64748b">Rata-rata: <b id="rataRekap">0</b> • Tuntas: <b id="tuntasRekap">0</b> • <span id="debugNilai" style="color:#dc2626"></span></p><button class="btn o" onclick="tesKirimNilai()" style="width:100%;margin-top:8px">🧪 TES KIRIM NILAI KE SHEETS</button><button class="btn g" onclick="kirimUlangSemuaNilai()" style="width:100%;margin-top:8px;background:#2563eb">📤 KIRIM ULANG NILAI LOKAL KE SHEETS</button></div>
 <div class="card"><h3>⚙️ Pengaturan Sekolah & Password</h3>
 <label>Nama Sekolah</label><input id="inputNamaSekolah" placeholder="SMP NEGERI 1 YOGYAKARTA">
 <label>Link Logo Sekolah (URL Gambar)</label><input id="inputLogo" placeholder="https://.../logo.png atau kosongkan untuk emoji 🏫">
@@ -73,10 +73,10 @@ table{width:100%;border-collapse:collapse}th{background:#f8fafc;padding:10px;tex
 <p style="font-size:12px;color:#94a3b8">Link guru: <b>?guru</b> di belakang link. Contoh: namakamu.netlify.app/?guru</p></div>
 </div>
 </div>
-<p style="text-align:center;color:#cbd5e1;font-size:11px;cursor:pointer" id="footerSekolah" onclick="bukaGuruFooter()">SMP NEGERI 1 YOGYAKARTA • Ujian Online v4 - FIX NILAI</p>
+<p style="text-align:center;color:#cbd5e1;font-size:11px;cursor:pointer" id="footerSekolah" onclick="bukaGuruFooter()">SMP NEGERI 1 YOGYAKARTA • Ujian Online v5 - FIX DUPLIKAT</p>
 <script>
 // ===== GANTI 1 BARIS INI SAJA =====
-const API_URL = "https://script.google.com/macros/s/AKfycbys3TuD6GaHdgVR0hZ4xMndoJDiuT_yQTiX_-lk7YFUrNhmc-fCyvBnPx6Dctqbb_mK/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzasmoYEHGowbmOAo94ukl1IvnEYcr5wLGFrWYVJhrqmEbSVpT0KdWPyfPZ44PdqNgT/exec";
 let NAMA_SEKOLAH = localStorage.getItem('nama_sekolah') || "SMP NEGERI 1 YOGYAKARTA";
 let LOGO_URL = localStorage.getItem('logo_sekolah') || "";
 let PASSWORD_GURU = localStorage.getItem('pass_guru') || "guru123";
@@ -86,11 +86,12 @@ let jadwalDB=JSON.parse(localStorage.getItem('ujian_jadwal')||'[]');
 let nilaiDB=JSON.parse(localStorage.getItem('ujian_nilai')||'[]');
 let soalUjianAktif=[], jawabanSiswa={}, timerInterval, sisaDetik=3600, mapelAktif='', namaAktif='', kelasAktif='';
 let IS_GURU = window.location.search.includes("guru");
+let sudahKirimNilai = false;
 function applySekolah(){
   document.title = "UJIAN ONLINE - " + NAMA_SEKOLAH;
   ['namaSekolahSiswa','namaSekolahGuru','namaSekolahModal'].forEach(id=>{let e=document.getElementById(id);if(e)e.textContent=NAMA_SEKOLAH;});
   document.getElementById('sambutanSekolah').textContent = NAMA_SEKOLAH + " • Silakan login untuk mulai ujian";
-  document.getElementById('footerSekolah').textContent = NAMA_SEKOLAH + " • Ujian Online v4 - FIX NILAI";
+  document.getElementById('footerSekolah').textContent = NAMA_SEKOLAH + " • Ujian Online v5 - FIX DUPLIKAT";
   document.getElementById('inputNamaSekolah').value = NAMA_SEKOLAH;
   document.getElementById('inputLogo').value = LOGO_URL;
   if(LOGO_URL && LOGO_URL.includes('http')){
@@ -111,19 +112,16 @@ function simpanPengaturan(){
   document.getElementById('passBaru').value='';
 }
 function saveLocal(){localStorage.setItem('ujian_soal',JSON.stringify(soalDB));localStorage.setItem('ujian_jadwal',JSON.stringify(jadwalDB));localStorage.setItem('ujian_nilai',JSON.stringify(nilaiDB));}
-// REVISI: pushOnline pakai text/plain + no-cors biar tidak kena CORS
 async function pushOnline(type,data){saveLocal();if(!API_URL.includes('http'))return;try{await fetch(API_URL,{method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({type,data})});}catch(e){console.log("pushOnline gagal",e);}}
-// REVISI: syncNow tidak menimpa nilai kalau Sheets kosong
 async function syncNow(){
   if(!API_URL.includes('http')){setStatus('● Mode Offline');return;}
   try{
     let r=await fetch(API_URL);let j=await r.json();
     if(j.Soal) soalDB=j.Soal;
     if(j.Jadwal) jadwalDB=j.Jadwal;
-    if(j.Nilai && j.Nilai.length>0){ nilaiDB=j.Nilai; console.log("✅ Nilai dari Sheets:",nilaiDB.length); }
-    else { console.log("⚠️ Sheets Nilai kosong, pakai lokal:",nilaiDB.length); }
+    if(j.Nilai && j.Nilai.length>0){ nilaiDB=j.Nilai; }
     saveLocal(); setStatus('● Online','online');
-  }catch(e){ setStatus('● Offline','offline'); console.log("Gagal sync",e); }
+  }catch(e){ setStatus('● Offline','offline'); }
   if(IS_GURU) renderGuruAll(); else renderSiswaAll();
 }
 function setStatus(txt,cls){['statusSiswa','statusGuru'].forEach(id=>{let el=document.getElementById(id);if(el){el.textContent=txt;el.className='status '+(cls||'offline');}});}
@@ -157,7 +155,6 @@ async function hapusSemuaSoal(){if(confirm('Hapus semua soal?')){soalDB=[];await
 async function simpanJadwal(){let j={mapel:document.getElementById('jMapel').value,tanggal:document.getElementById('jTanggal').value,jam:document.getElementById('jJam').value,durasi:+document.getElementById('jDurasi').value||60,ket:document.getElementById('jKet').value,kelas:'SEMUA KELAS 7-8-9'};jadwalDB.push(j);await pushOnline('Jadwal',jadwalDB);renderGuruAll();alert('✅ Jadwal online! Berlaku 7A-9B');}
 function renderJadwalGuru(){let html=jadwalDB.map((j,i)=>`<div class="jadwal-item"><div><b>${j.mapel}</b> <span class="badge">7A-9B</span><br><span style="font-size:13px;color:#64748b">📅 ${j.tanggal} • 🕐 ${j.jam} • ⏳ ${j.durasi} menit • ${j.ket}</span></div><button class="btn r" onclick="hapusJadwal(${i})">Hapus</button></div>`).join('');document.getElementById('listJadwal').innerHTML=html||'<p style="color:#94a3b8">Belum ada jadwal.</p>';}
 async function hapusJadwal(i){jadwalDB.splice(i,1);await pushOnline('Jadwal',jadwalDB);renderGuruAll();}
-// REVISI: renderRekap tampilkan total asli biar tidak bingung filter
 function renderRekap(){
   let fm=document.getElementById('filterRekapMapel').value; let fk=document.getElementById('filterRekapKelas').value;
   let list=nilaiDB.filter(n=>(!fm||n.mapel==fm)&&(!fk||n.kelas==fk)).sort((a,b)=>b.nilai-a.nilai);
@@ -167,7 +164,6 @@ function renderRekap(){
   document.getElementById('tuntasRekap').innerText=nilaiDB.filter(n=>n.nilai>=75).length+' / '+nilaiDB.length;
   let dbg=document.getElementById('debugNilai'); if(dbg) dbg.textContent='Total nilai di database: '+nilaiDB.length+' | Tampil: '+list.length;
 }
-// REVISI: Tes kirim nilai manual - untuk debug
 async function tesKirimNilai(){
   if(!API_URL.includes('http')){alert('API_URL belum diisi!');return;}
   let namaTes="TES_"+Math.floor(Math.random()*1000);
@@ -177,7 +173,27 @@ async function tesKirimNilai(){
     + "&mapel=" + encodeURIComponent("Matematika")
     + "&benar=9&salah=1&nilai=90&waktu=" + encodeURIComponent(new Date().toLocaleString('id-ID'));
   await fetch(url, {method:'GET', mode:'no-cors'});
-  alert("✅ Tes terkirim: "+namaTes+"\nTunggu 3 detik, lalu buka Sheet Nilai & klik Sync Sekarang.\nKalau tidak muncul, berarti Code.gs belum Deploy ulang / nama Sheet bukan 'Nilai'.");
+  alert("✅ Tes terkirim: "+namaTes+"\nTunggu 3 detik, lalu buka Sheet Nilai & klik Sync Sekarang.");
+  setTimeout(syncNow, 3000);
+}
+async function kirimUlangSemuaNilai(){
+  if(!API_URL.includes('http')){alert('API_URL belum diisi!');return;}
+  if(!nilaiDB.length){alert('Tidak ada nilai lokal untuk dikirim!');return;}
+  if(!confirm('Kirim ulang '+nilaiDB.length+' nilai lokal ke Sheets?')) return;
+  let sukses = 0;
+  for(let n of nilaiDB){
+    let url = API_URL + "?action=saveNilai"
+      + "&nama=" + encodeURIComponent(n.nama)
+      + "&kelas=" + encodeURIComponent(n.kelas)
+      + "&mapel=" + encodeURIComponent(n.mapel)
+      + "&benar=" + n.benar
+      + "&salah=" + n.salah
+      + "&nilai=" + n.nilai
+      + "&waktu=" + encodeURIComponent(n.waktu);
+    try{ await fetch(url, {method:'GET', mode:'no-cors'}); sukses++; }catch(e){}
+    await new Promise(r=>setTimeout(r,600));
+  }
+  alert("✅ Berhasil kirim ulang "+sukses+" nilai ke Sheets!\nTunggu 5 detik, buka Sheet Nilai, lalu klik Sync Sekarang.");
   setTimeout(syncNow, 3000);
 }
 function exportRekap(){
@@ -220,11 +236,13 @@ async function hapusRekap(){if(confirm('Hapus semua rekap?')){nilaiDB=[];await p
 function renderSiswaAll(){renderJadwalSiswa();showJadwalInfo();}
 function renderJadwalSiswa(){let html=jadwalDB.map(j=>`<div class="jadwal-item"><div><b>${j.mapel}</b> <span class="badge">7A-9B • Sama</span><br><span style="font-size:13px;color:#64748b">📅 ${j.tanggal} • 🕐 ${j.jam} • ⏳ ${j.durasi} menit • ${j.ket}</span></div></div>`).join('');document.getElementById('jadwalHome').innerHTML=html||'<p style="color:#94a3b8">Belum ada jadwal dari guru.</p>';}
 function showJadwalInfo(){let m=document.getElementById('sMapel').value;let j=jadwalDB.find(x=>x.mapel==m);document.getElementById('jadwalInfo').innerHTML=j?`<div style="background:#dcfce7;padding:12px;border-radius:10px;font-size:14px">📅 <b>Jadwal ${m}:</b> ${j.tanggal} • ${j.jam} • ${j.durasi} menit • Berlaku 7A-9B<br>${j.ket}</div>`:`<div style="background:#fef9c3;padding:12px;border-radius:10px;font-size:14px">⚠️ Belum ada jadwal untuk ${m}. Tetap bisa latihan.</div>`;}
-function mulaiUjian(){let nama=document.getElementById('sNama').value.trim();if(!nama){alert('Isi nama dulu!');return;}namaAktif=nama;kelasAktif=document.getElementById('sKelas').value;let absen=document.getElementById('sAbsen').value||'-';mapelAktif=document.getElementById('sMapel').value;let list=soalDB.filter(s=>s.mapel==mapelAktif&&(s.kelas=='SEMUA'||s.kelas==kelasAktif));if(!list.length){alert('Belum ada soal untuk '+mapelAktif+'. Hubungi guru.');return;}soalUjianAktif=[...list].sort(()=>Math.random()-0.5);jawabanSiswa={};let j=jadwalDB.find(x=>x.mapel==mapelAktif);sisaDetik=(j?j.durasi:60)*60;document.getElementById('page-login').classList.add('hidden');document.getElementById('areaUjian').classList.remove('hidden');document.getElementById('hasilUjian').classList.add('hidden');document.getElementById('judulUjian').innerText=`Ujian ${mapelAktif} - ${namaAktif} (${kelasAktif} - ${absen})`;document.getElementById('progressUjian').innerText=`${soalUjianAktif.length} soal • Soal diacak • Jangan refresh`;document.getElementById('listSoalUjian').innerHTML=soalUjianAktif.map((s,i)=>{if(s.jenis=='essay')return `<div class="soal-box"><b>${i+1}. ${s.tanya}</b><textarea rows="3" placeholder="Tulis jawaban..." onchange="jawabanSiswa[${i}]=this.value" style="margin-top:10px"></textarea></div>`;let opts=[{k:'A',t:s.a},{k:'B',t:s.b},{k:'C',t:s.c},{k:'D',t:s.d}].sort(()=>Math.random()-0.5);return `<div class="soal-box"><b>${i+1}. ${s.tanya}</b><br><span style="font-size:12px;color:#64748b">${s.bab}</span>${opts.map(o=>`<label class="opt"><input type="radio" name="soal${i}" value="${o.k}" onchange="pilihJawaban(${i},'${o.k}',this)"> ${o.k}. ${o.t}</label>`).join('')}</div>`;}).join('');window.scrollTo(0,0);clearInterval(timerInterval);startTimer();}
+function mulaiUjian(){let nama=document.getElementById('sNama').value.trim();if(!nama){alert('Isi nama dulu!');return;}namaAktif=nama;kelasAktif=document.getElementById('sKelas').value;let absen=document.getElementById('sAbsen').value||'-';mapelAktif=document.getElementById('sMapel').value;let list=soalDB.filter(s=>s.mapel==mapelAktif&&(s.kelas=='SEMUA'||s.kelas==kelasAktif));if(!list.length){alert('Belum ada soal untuk '+mapelAktif+'. Hubungi guru.');return;}soalUjianAktif=[...list].sort(()=>Math.random()-0.5);jawabanSiswa={};sudahKirimNilai=false;let j=jadwalDB.find(x=>x.mapel==mapelAktif);sisaDetik=(j?j.durasi:60)*60;document.getElementById('page-login').classList.add('hidden');document.getElementById('areaUjian').classList.remove('hidden');document.getElementById('hasilUjian').classList.add('hidden');document.getElementById('judulUjian').innerText=`Ujian ${mapelAktif} - ${namaAktif} (${kelasAktif} - ${absen})`;document.getElementById('progressUjian').innerText=`${soalUjianAktif.length} soal • Soal diacak • Jangan refresh`;document.getElementById('listSoalUjian').innerHTML=soalUjianAktif.map((s,i)=>{if(s.jenis=='essay')return `<div class="soal-box"><b>${i+1}. ${s.tanya}</b><textarea rows="3" placeholder="Tulis jawaban..." onchange="jawabanSiswa[${i}]=this.value" style="margin-top:10px"></textarea></div>`;let opts=[{k:'A',t:s.a},{k:'B',t:s.b},{k:'C',t:s.c},{k:'D',t:s.d}].sort(()=>Math.random()-0.5);return `<div class="soal-box"><b>${i+1}. ${s.tanya}</b><br><span style="font-size:12px;color:#64748b">${s.bab}</span>${opts.map(o=>`<label class="opt"><input type="radio" name="soal${i}" value="${o.k}" onchange="pilihJawaban(${i},'${o.k}',this)"> ${o.k}. ${o.t}</label>`).join('')}</div>`;}).join('');window.scrollTo(0,0);clearInterval(timerInterval);startTimer();}
 function pilihJawaban(i,val,el){jawabanSiswa[i]=val;el.closest('.soal-box').querySelectorAll('.opt').forEach(e=>e.classList.remove('selected'));el.closest('.opt').classList.add('selected');}
 function startTimer(){timerInterval=setInterval(()=>{sisaDetik--;let m=Math.floor(sisaDetik/60);let d=sisaDetik%60;document.getElementById('timer').innerText=`⏰ Sisa: ${m}:${String(d).padStart(2,'0')} • ${mapelAktif}`;if(sisaDetik<=0){clearInterval(timerInterval);alert('Waktu habis! Auto kumpul.');kumpulJawaban();}},1000);}
-// REVISI UTAMA: kumpulJawaban kirim via GET + POST cadangan (anti CORS)
+// FIX DUPLIKAT: Kirim HANYA 1x via GET, ada kunci sudahKirimNilai
 async function kumpulJawaban(){
+  if(sudahKirimNilai){ alert('Nilai sudah dikirim, tunggu sebentar...'); return; }
+  sudahKirimNilai = true;
   clearInterval(timerInterval);
   let benar=0,totalBobot=0,dapatBobot=0,total=soalUjianAktif.length;
   soalUjianAktif.forEach((s,i)=>{
@@ -246,9 +264,9 @@ async function kumpulJawaban(){
         + "&salah=" + nilaiBaru.salah
         + "&nilai=" + nilaiBaru.nilai
         + "&waktu=" + encodeURIComponent(nilaiBaru.waktu);
+      // HANYA GET 1x - POST cadangan DIMATIKAN biar tidak 2x
       await fetch(url, {method:'GET', mode:'no-cors'});
-      console.log("✅ Nilai dikirim via GET:", nilaiBaru);
-      try{ await fetch(API_URL,{method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({type:'NilaiAppend', data:nilaiBaru})}); }catch(e){}
+      console.log("✅ Nilai dikirim via GET 1x:", nilaiBaru);
     }catch(e){ console.log("❌ Gagal kirim nilai:", e); }
   }
   document.getElementById('areaUjian').classList.add('hidden');
