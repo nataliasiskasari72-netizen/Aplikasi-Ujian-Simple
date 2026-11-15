@@ -114,7 +114,12 @@ function saveLocal(){localStorage.setItem('ujian_soal',JSON.stringify(soalDB));l
 async function pushOnline(type,data){saveLocal();if(!API_URL.includes('http'))return;try{await fetch(API_URL,{method:'POST',body:JSON.stringify({type,data})});}catch(e){}}
 async function syncNow(){
   if(!API_URL.includes('http')){setStatus('● Mode Offline');return;}
-  try{let r=await fetch(API_URL);let j=await r.json();if(j.Soal)soalDB=j.Soal;if(j.Jadwal)jadwalDB=j.Jadwal;if(j.Nilai)nilaiDB=j.Nilai;saveLocal();setStatus('● Online','online');}catch(e){setStatus('● Offline','offline');}
+  try{let r=await fetch(API_URL);let j=await r.json();if(j.Soal)soalDB=j.Soal;if(j.Jadwal)jadwalDB=j.Jadwal;// Jangan timpa nilai lokal kalau Sheets kosong tapi lokal ada isi
+if(j.Nilai && j.Nilai.length > 0) nilaiDB = j.Nilai;
+else if(j.Nilai && j.Nilai.length === 0 && nilaiDB.length > 0){
+  // Sheets kosong tapi lokal ada -> kirim ulang nilai lokal yang belum masuk (opsional)
+  console.log("Sheets Nilai kosong, pakai data lokal:", nilaiDB.length);
+};saveLocal();setStatus('● Online','online');}catch(e){setStatus('● Offline','offline');}
   if(IS_GURU) renderGuruAll(); else renderSiswaAll();
 }
 function setStatus(txt,cls){['statusSiswa','statusGuru'].forEach(id=>{let el=document.getElementById(id);if(el){el.textContent=txt;el.className='status '+(cls||'offline');}});}
