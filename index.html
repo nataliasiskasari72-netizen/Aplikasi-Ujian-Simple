@@ -192,7 +192,37 @@ function showJadwalInfo(){let m=document.getElementById('sMapel').value;let j=ja
 function mulaiUjian(){let nama=document.getElementById('sNama').value.trim();if(!nama){alert('Isi nama dulu!');return;}namaAktif=nama;kelasAktif=document.getElementById('sKelas').value;let absen=document.getElementById('sAbsen').value||'-';mapelAktif=document.getElementById('sMapel').value;let list=soalDB.filter(s=>s.mapel==mapelAktif&&(s.kelas=='SEMUA'||s.kelas==kelasAktif));if(!list.length){alert('Belum ada soal untuk '+mapelAktif+'. Hubungi guru.');return;}soalUjianAktif=[...list].sort(()=>Math.random()-0.5);jawabanSiswa={};let j=jadwalDB.find(x=>x.mapel==mapelAktif);sisaDetik=(j?j.durasi:60)*60;document.getElementById('page-login').classList.add('hidden');document.getElementById('areaUjian').classList.remove('hidden');document.getElementById('hasilUjian').classList.add('hidden');document.getElementById('judulUjian').innerText=`Ujian ${mapelAktif} - ${namaAktif} (${kelasAktif} - ${absen})`;document.getElementById('progressUjian').innerText=`${soalUjianAktif.length} soal • Soal diacak • Jangan refresh`;document.getElementById('listSoalUjian').innerHTML=soalUjianAktif.map((s,i)=>{if(s.jenis=='essay')return `<div class="soal-box"><b>${i+1}. ${s.tanya}</b><textarea rows="3" placeholder="Tulis jawaban..." onchange="jawabanSiswa[${i}]=this.value" style="margin-top:10px"></textarea></div>`;let opts=[{k:'A',t:s.a},{k:'B',t:s.b},{k:'C',t:s.c},{k:'D',t:s.d}].sort(()=>Math.random()-0.5);return `<div class="soal-box"><b>${i+1}. ${s.tanya}</b><br><span style="font-size:12px;color:#64748b">${s.bab}</span>${opts.map(o=>`<label class="opt"><input type="radio" name="soal${i}" value="${o.k}" onchange="pilihJawaban(${i},'${o.k}',this)"> ${o.k}. ${o.t}</label>`).join('')}</div>`;}).join('');window.scrollTo(0,0);clearInterval(timerInterval);startTimer();}
 function pilihJawaban(i,val,el){jawabanSiswa[i]=val;el.closest('.soal-box').querySelectorAll('.opt').forEach(e=>e.classList.remove('selected'));el.closest('.opt').classList.add('selected');}
 function startTimer(){timerInterval=setInterval(()=>{sisaDetik--;let m=Math.floor(sisaDetik/60);let d=sisaDetik%60;document.getElementById('timer').innerText=`⏰ Sisa: ${m}:${String(d).padStart(2,'0')} • ${mapelAktif}`;if(sisaDetik<=0){clearInterval(timerInterval);alert('Waktu habis! Auto kumpul.');kumpulJawaban();}},1000);}
-async function kumpulJawaban(){clearInterval(timerInterval);let benar=0,totalBobot=0,dapatBobot=0,total=soalUjianAktif.length;soalUjianAktif.forEach((s,i)=>{totalBobot+=+s.bobot||10;if(s.jenis=='pg'&&jawabanSiswa[i]==s.kunci){benar++;dapatBobot+=+s.bobot||10;}if(s.jenis=='essay'&&jawabanSiswa[i]&&jawabanSiswa[i].length>10){dapatBobot+=(+s.bobot||10)*0.8;benar+=0.8;}});let nilai=totalBobot?Math.round(dapatBobot/totalBobot*100):0;let predikat=nilai>=90?'A - Sangat Baik':nilai>=80?'B - Baik':nilai>=75?'C - Cukup':'D - Remedial';nilaiDB.push({nama:namaAktif,kelas:kelasAktif,mapel:mapelAktif,benar:Math.round(benar),salah:total-Math.round(benar),nilai:nilai,waktu:new Date().toLocaleString('id-ID')});await pushOnline('Nilai',nilaiDB);document.getElementById('areaUjian').classList.add('hidden');let h=document.getElementById('hasilUjian');h.classList.remove('hidden');document.getElementById('hasilDetail').innerHTML=`<p>${namaAktif} • ${kelasAktif} • ${mapelAktif} • ${NAMA_SEKOLAH}</p><div style="font-size:64px;font-weight:800;color:#4f46e5">${nilai}</div><p><b>${predikat}</b><br>Benar: ${Math.round(benar)} dari ${total}</p><p style="font-size:13px;color:#64748b">Nilai sudah masuk ke guru.</p>`;window.scrollTo(0,0);}
+async function kumpulJawaban(){
+  clearInterval(timerInterval);
+  let benar=0,totalBobot=0,dapatBobot=0,total=soalUjianAktif.length;
+  soalUjianAktif.forEach((s,i)=>{
+    totalBobot+=+s.bobot||10;
+    if(s.jenis=='pg'&&jawabanSiswa[i]==s.kunci){benar++;dapatBobot+=+s.bobot||10;}
+    if(s.jenis=='essay'&&jawabanSiswa[i]&&jawabanSiswa[i].length>10){dapatBobot+=(+s.bobot||10)*0.8;benar+=0.8;}
+  });
+  let nilai=totalBobot?Math.round(dapatBobot/totalBobot*100):0;
+  let predikat=nilai>=90?'A - Sangat Baik':nilai>=80?'B - Baik':nilai>=75?'C - Cukup':'D - Remedial';
+
+  // Buat 1 objek nilai baru
+  let nilaiBaru = {nama:namaAktif, kelas:kelasAktif, mapel:mapelAktif, benar:Math.round(benar), salah:total-Math.round(benar), nilai:nilai, waktu:new Date().toLocaleString('id-ID')};
+
+  // 1. Simpan lokal dulu biar tidak hilang
+  nilaiDB.push(nilaiBaru);
+  saveLocal();
+
+  // 2. Kirim ke Sheets sebagai BARIS BARU (Append) - Bukan timpa semua
+  if(API_URL.includes('http')){
+    try{
+      await fetch(API_URL,{method:'POST', body:JSON.stringify({type:'NilaiAppend', data:nilaiBaru})});
+      console.log("✅ Nilai terkirim ke Sheets:", nilaiBaru);
+    }catch(e){ console.log("❌ Gagal kirim nilai, tersimpan lokal:", e); alert("Nilai tersimpan di HP, tapi gagal kirim ke Sheets. Cek internet & API_URL!"); }
+  }
+
+  document.getElementById('areaUjian').classList.add('hidden');
+  let h=document.getElementById('hasilUjian'); h.classList.remove('hidden');
+  document.getElementById('hasilDetail').innerHTML=`<p>${namaAktif} • ${kelasAktif} • ${mapelAktif} • ${NAMA_SEKOLAH}</p><div style="font-size:64px;font-weight:800;color:#4f46e5">${nilai}</div><p><b>${predikat}</b><br>Benar: ${Math.round(benar)} dari ${total}</p><p style="font-size:13px;color:#64748b">Nilai sudah masuk ke guru.</p>`;
+  window.scrollTo(0,0);
+}
 let opt=MAPEL.map(m=>`<option>${m}</option>`).join('');
 document.getElementById('gMapel').innerHTML=opt;document.getElementById('jMapel').innerHTML=opt;document.getElementById('sMapel').innerHTML=opt;
 document.getElementById('filterSoalMapel').innerHTML='<option value="">Semua Mapel</option>'+opt;
