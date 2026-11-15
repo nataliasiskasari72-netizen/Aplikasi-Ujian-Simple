@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UJIAN ONLINE SMP - Link Online</title>
+<style>
+*{box-sizing:border-box;font-family:'Segoe UI',sans-serif}body{margin:0;background:#eef2ff;color:#0f172a}
+header{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;padding:16px 18px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;align-items:center}
+header h1{margin:0;font-size:21px}header p{margin:4px 0 0;opacity:.9;font-size:13px}
+.btn{border:0;padding:11px 15px;border-radius:10px;font-weight:700;cursor:pointer}.w{background:#fff;color:#4f46e5}.g{background:#16a34a;color:#fff}.d{background:#0f172a;color:#fff}.o{background:#f59e0b;color:#fff}.r{background:#dc2626;color:#fff}
+.container{max-width:1100px;margin:auto;padding:14px}
+.card{background:#fff;padding:18px;border-radius:18px;box-shadow:0 4px 14px rgba(0,0,0,.06);margin-bottom:14px}
+input,select,textarea{padding:11px;border:1px solid #e2e8f0;border-radius:10px;width:100%;font-size:14px}
+label{font-size:13px;font-weight:700;color:#475569;display:block;margin:10px 0 5px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.jadwal-item{background:#f8fafc;border:1px solid #e2e8f0;border-left:5px solid #4f46e5;padding:12px;border-radius:12px;margin-bottom:8px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.soal-box{background:#f8fafc;border:1px solid #e2e8f0;padding:15px;border-radius:14px;margin-bottom:10px}
+.opt{display:block;background:#fff;border:1px solid #e2e8f0;padding:11px;border-radius:10px;margin:7px 0;cursor:pointer}.opt.selected{border-color:#4f46e5;background:#eef2ff;border-width:2px}
+.badge{padding:5px 11px;border-radius:20px;font-size:12px;font-weight:700;background:#dbeafe;color:#1e40af}
+.timer{position:sticky;top:0;background:#dc2626;color:#fff;padding:12px;text-align:center;font-weight:800;font-size:18px;border-radius:12px;margin-bottom:12px;z-index:10}
+table{width:100%;border-collapse:collapse}th{background:#f8fafc;padding:10px;text-align:left;font-size:12px;color:#64748b}td{padding:10px;border-top:1px solid #f1f5f9;font-size:14px}
+.hidden{display:none!important}.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px}.modal-box{background:#fff;padding:26px;border-radius:18px;width:100%;max-width:380px;text-align:center}
+.status{padding:5px 11px;border-radius:20px;font-size:12px;font-weight:700}.online{background:#dcfce7;color:#166534}.offline{background:#fee2e2;color:#991b1b}
+@media(max-width:700px){.grid2,.grid3{grid-template-columns:1fr}}
+</style></head>
+<body>
+<header><div><h1>📚 UJIAN ONLINE SMP</h1><p>11 Mapel • 7A 7B 8A 8B 9A 9B • Jadwal Sama • <span id="status" class="status offline">Menghubungkan...</span></p></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn w" onclick="showPage('home')">🏠 Beranda</button><button class="btn w" onclick="showPage('guru')">👩‍🏫 Guru 🔒</button><button class="btn w" onclick="showPage('siswa')">🧑‍🎓 Siswa</button><button class="btn w" onclick="showPage('rekap')">📊 Rekap</button><button class="btn w" onclick="syncNow()">🔄 Sync</button></div></header>
+
+<div id="modalPass" class="modal hidden"><div class="modal-box"><h2 style="margin:0">🔒 Mode Guru</h2><p style="color:#64748b;font-size:14px">Password default: <b>guru123</b></p><input id="inputPass" type="password" placeholder="Masukkan Password Guru" style="text-align:center;font-size:16px" onkeydown="if(event.key==='Enter') cekPassword()"><p id="pesanPass" style="color:#dc2626;font-size:13px;min-height:18px"></p><button class="btn g" style="width:100%;padding:13px" onclick="cekPassword()">🔓 BUKA MODE GURU</button><button class="btn d" style="width:100%;padding:11px;margin-top:8px" onclick="tutupModal()">Batal</button></div></div>
+
+<div class="container">
+<div id="page-home">
+<div class="card" style="text-align:center;padding:26px"><h2 style="margin:0">Selamat Datang - Ujian Online SMP</h2><p style="color:#64748b">Guru buat soal di sekolah, siswa kerjakan di rumah, nilai langsung masuk. Jadwal sama untuk kelas 7,8,9.</p><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px"><button class="btn d" style="padding:15px 22px" onclick="showPage('guru')">👩‍🏫 MODE GURU 🔒</button><button class="btn g" style="padding:15px 22px" onclick="showPage('siswa')">🧑‍🎓 MODE SISWA</button><button class="btn o" style="padding:15px 22px" onclick="showPage('rekap')">📊 REKAP NILAI</button></div></div>
+<div class="card"><h3 style="margin:0 0 10px">📅 Jadwal Ujian - Sama Kelas 7,8,9</h3><div id="jadwalHome"></div></div>
+<div class="card"><h3 style="margin:0 0 10px">📖 11 Mata Pelajaran</h3><div id="mapelList" style="display:flex;gap:8px;flex-wrap:wrap"></div></div>
+</div>
+
+<div id="page-guru" class="hidden">
+<div class="card"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px"><h2 style="margin:0">👩‍🏫 Panel Guru</h2><button class="btn r" onclick="logoutGuru()">🔒 Logout Guru</button></div>
+<div class="grid3"><div><label>Mapel (11)</label><select id="gMapel"></select></div><div><label>Kelas Tujuan</label><select id="gKelas"><option value="SEMUA">SEMUA KELAS 7A-9B</option><option>7A</option><option>7B</option><option>8A</option><option>8B</option><option>9A</option><option>9B</option></select></div><div><label>Jenis</label><select id="gJenis" onchange="toggleJenis()"><option value="pg">Pilihan Ganda</option><option value="essay">Essay</option></select></div></div>
+<label>Bab / Materi</label><input id="gBab" placeholder="cth: Bab 4 - Pecahan"><label>Pertanyaan</label><textarea id="gTanya" rows="3"></textarea>
+<div id="pgForm"><div class="grid2"><div><label>Jawaban A</label><input id="gA"></div><div><label>Jawaban B</label><input id="gB"></div><div><label>Jawaban C</label><input id="gC"></div><div><label>Jawaban D</label><input id="gD"></div></div><label>Kunci</label><select id="gKunci"><option>A</option><option>B</option><option>C</option><option>D</option></select></div>
+<div id="essayForm" class="hidden"><label>Kunci Essay</label><textarea id="gKunciEssay" rows="2"></textarea></div>
+<div class="grid2"><div><label>Bobot</label><input id="gBobot" type="number" value="10"></div><div><label>Guru Pengampu</label><input id="gNamaGuru" placeholder="cth: Bu Ria"></div></div><br><button class="btn g" style="width:100%;padding:14px;font-size:16px" onclick="simpanSoal()">💾 SIMPAN SOAL - Langsung Online</button><p style="text-align:center;color:#64748b;font-size:13px" id="totalSoalInfo"></p></div>
+<div class="card"><h2 style="margin:0 0 10px">📅 Atur Jadwal (Sama 7,8,9)</h2><div class="grid3"><div><label>Mapel</label><select id="jMapel"></select></div><div><label>Tanggal</label><input id="jTanggal" type="date"></div><div><label>Jam</label><input id="jJam" type="time" value="07:30"></div></div><div class="grid2"><div><label>Durasi (Menit)</label><input id="jDurasi" type="number" value="60"></div><div><label>Keterangan</label><input id="jKet" placeholder="UTS - Ruang 1-6"></div></div><br><button class="btn d" style="width:100%;padding:13px" onclick="simpanJadwal()">+ TAMBAH JADWAL</button><div id="listJadwal" style="margin-top:12px"></div></div>
+<div class="card"><h3>Daftar Soal</h3><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><select id="filterSoalMapel" onchange="renderDaftarSoal()" style="flex:1"></select><button class="btn r" onclick="hapusSemuaSoal()">Hapus Semua</button><button class="btn o" onclick="contohSoal()">⚡ Contoh 11 Soal</button></div><div id="daftarSoal"></div></div>
+<div class="card"><h3>⚙️ Ganti Password Guru</h3><div style="display:flex;gap:8px"><input id="passBaru" placeholder="Password baru"><button class="btn g" onclick="gantiPass()">Ganti</button></div></div>
+</div>
+
+<div id="page-siswa" class="hidden">
+<div class="card"><h2 style="margin:0">🧑‍🎓 Login Siswa</h2><div class="grid3"><div><label>Nama Lengkap</label><input id="sNama" placeholder="Andi Pratama"></div><div><label>Kelas</label><select id="sKelas"><option>7A</option><option>7B</option><option>8A</option><option>8B</option><option>9A</option><option>9B</option></select></div><div><label>Absen / NISN</label><input id="sAbsen" placeholder="12"></div></div><label>Pilih Mapel Ujian</label><select id="sMapel"></select><div id="jadwalInfo" style="margin-top:10px"></div><br><button class="btn g" style="width:100%;padding:14px;font-size:16px" onclick="mulaiUjian()">▶️ MULAI UJIAN</button></div>
+<div id="areaUjian" class="hidden"><div class="timer" id="timer">⏰ 60:00</div><div class="card"><h3 id="judulUjian" style="margin:0"></h3><p id="progressUjian" style="color:#64748b;font-size:13px"></p><div id="listSoalUjian"></div><button class="btn g" style="width:100%;padding:15px;font-size:17px" onclick="kumpulJawaban()">✅ KUMPULKAN & LIHAT NILAI</button></div></div>
+<div id="hasilUjian" class="hidden card" style="text-align:center;padding:28px"><h2>🎉 Ujian Selesai!</h2><div id="hasilDetail"></div><button class="btn d" onclick="showPage('home')">Kembali</button></div>
+</div>
+
+<div id="page-rekap" class="hidden"><div class="card"><h2 style="margin:0 0 10px">📊 Rekap Nilai - Live Online</h2><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"><select id="filterRekapMapel" onchange="renderRekap()" style="flex:1"></select><select id="filterRekapKelas" onchange="renderRekap()"><option value="">Semua Kelas</option><option>7A</option><option>7B</option><option>8A</option><option>8B</option><option>9A</option><option>9B</option></select><button class="btn g" onclick="exportRekap()">⬇ Excel</button><button class="btn r" onclick="hapusRekap()">Hapus Rekap</button></div><div style="overflow:auto"><table><thead><tr><th>Rank</th><th>Nama</th><th>Kelas</th><th>Mapel</th><th>Benar</th><th>Salah</th><th>Nilai</th><th>Predikat</th><th>Waktu</th></tr></thead><tbody id="tbodyRekap"></tbody></table></div><p style="font-size:13px;color:#64748b">Rata-rata: <b id="rataRekap">0</b> • Tuntas: <b id="tuntasRekap">0</b></p></div></div>
+</div>
+
+<script>
+// ===== GANTI LINK INI DENGAN LINK WEB APP KAMU =====
+const API_URL = "https://script.google.com/macros/s/AKfycbzDxXS5yTQCwrjnr-PGUnAwHG6FX_Gz8lG09xVgp6yAuVERk2MBhcujseOV-LAKK4lP/exec";
+let PASSWORD_GURU = localStorage.getItem('pass_guru') || "guru123";
+let guruLogin = false; let targetPage='guru';
+const MAPEL=["Matematika","IPA","IPS","Bahasa Indonesia","Bahasa Inggris","PPKn","Pendidikan Agama","PJOK","Seni Budaya","Informatika","Prakarya"];
+let soalDB=JSON.parse(localStorage.getItem('ujian_soal')||'[]');
+let jadwalDB=JSON.parse(localStorage.getItem('ujian_jadwal')||'[]');
+let nilaiDB=JSON.parse(localStorage.getItem('ujian_nilai')||'[]');
+let soalUjianAktif=[], jawabanSiswa={}, timerInterval, sisaDetik=3600, mapelAktif='', namaAktif='', kelasAktif='';
+function saveLocal(){localStorage.setItem('ujian_soal',JSON.stringify(soalDB));localStorage.setItem('ujian_jadwal',JSON.stringify(jadwalDB));localStorage.setItem('ujian_nilai',JSON.stringify(nilaiDB));}
+async function pushOnline(type, data){
+  saveLocal();
+  if(!API_URL.includes('http')) return;
+  try{
+    await fetch(API_URL, {method:'POST', body:JSON.stringify({type, data})});
+  }catch(e){ console.log("Gagal sync", e); }
+}
+
+async function syncNow(){
+  if(!API_URL.includes('http')){
+    document.getElementById('status').textContent='● Mode Offline';
+    renderAll(); return;
+  }
+  try{
+    let r = await fetch(API_URL);
+    let j = await r.json();
+    if(j.Soal) soalDB = j.Soal;
+    if(j.Jadwal) jadwalDB = j.Jadwal;
+    if(j.Nilai) nilaiDB = j.Nilai;
+    saveLocal();
+    document.getElementById('status').textContent='● Online - Tabel Tersambung';
+    document.getElementById('status').className='status online';
+  }catch(e){
+    document.getElementById('status').textContent='● Offline - Data Lokal';
+  }
+  renderAll();
+}function renderAll(){ renderJadwal(); renderDaftarSoal(); renderRekap(); updateInfo(); }
+function init(){
+  let opt=MAPEL.map(m=>`<option>${m}</option>`).join('');
+  document.getElementById('gMapel').innerHTML=opt; document.getElementById('jMapel').innerHTML=opt; document.getElementById('sMapel').innerHTML=opt;
+  document.getElementById('filterSoalMapel').innerHTML='<option value="">Semua Mapel</option>'+opt;
+  document.getElementById('filterRekapMapel').innerHTML='<option value="">Semua Mapel</option>'+opt;
+  document.getElementById('mapelList').innerHTML=MAPEL.map(m=>`<span class="badge">${m}</span>`).join('');
+  document.getElementById('jTanggal').value=new Date().toISOString().slice(0,10);
+  document.getElementById('sMapel').addEventListener('change',showJadwalInfo); showJadwalInfo();
+  syncNow(); setInterval(syncNow,20000);
+}
+function showPage(p){ if(p==='guru' && !guruLogin){ targetPage=p; document.getElementById('modalPass').classList.remove('hidden'); document.getElementById('inputPass').value=''; document.getElementById('pesanPass').innerText=''; setTimeout(()=>document.getElementById('inputPass').focus(),100); return; } ['home','guru','siswa','rekap'].forEach(x=>document.getElementById('page-'+x).classList.toggle('hidden',x!==p)); window.scrollTo(0,0); }
+function cekPassword(){ let input=document.getElementById('inputPass').value; if(input===PASSWORD_GURU){ guruLogin=true; document.getElementById('modalPass').classList.add('hidden'); ['home','guru','siswa','rekap'].forEach(x=>document.getElementById('page-'+x).classList.toggle('hidden',x!==targetPage)); alert('✅ Selamat datang, Guru!'); } else { document.getElementById('pesanPass').innerText='❌ Password salah!'; document.getElementById('inputPass').value=''; } }
+function tutupModal(){document.getElementById('modalPass').classList.add('hidden');}
+function logoutGuru(){guruLogin=false; alert('🔒 Logout Guru.'); showPage('home');}
+function gantiPass(){ let b=document.getElementById('passBaru').value.trim(); if(!b){alert('Isi password baru!');return;} PASSWORD_GURU=b; localStorage.setItem('pass_guru',b); alert('✅ Password baru: '+b); document.getElementById('passBaru').value=''; }
+function toggleJenis(){let j=document.getElementById('gJenis').value; document.getElementById('pgForm').classList.toggle('hidden',j!=='pg'); document.getElementById('essayForm').classList.toggle('hidden',j!=='essay');}
+function updateInfo(){document.getElementById('totalSoalInfo').innerText=`Total soal: ${soalDB.length} • Jadwal: ${jadwalDB.length} • Nilai: ${nilaiDB.length} • Auto Sync 20 detik`;}
+async function simpanSoal(){ let s={mapel:document.getElementById('gMapel').value,kelas:document.getElementById('gKelas').value,jenis:document.getElementById('gJenis').value,bab:document.getElementById('gBab').value,tanya:document.getElementById('gTanya').value,a:document.getElementById('gA').value,b:document.getElementById('gB').value,c:document.getElementById('gC').value,d:document.getElementById('gD').value,kunci:document.getElementById('gKunci').value,kunciEssay:document.getElementById('gKunciEssay').value,bobot:+document.getElementById('gBobot').value||10,guru:document.getElementById('gNamaGuru').value}; if(!s.tanya){alert('Soal belum diisi!');return;} if(s.jenis=='pg'&&(!s.a||!s.b||!s.c||!s.d)){alert('Lengkapi A-D!');return;} soalDB.push(s); await pushOnline('Soal',soalDB); alert('✅ Soal tersimpan & langsung online! Siswa bisa langsung ujian.'); document.getElementById('gTanya').value=''; document.getElementById('gBab').value=''; document.getElementById('gA').value='';document.getElementById('gB').value='';document.getElementById('gC').value='';document.getElementById('gD').value=''; renderAll(); }
+async function contohSoal(){ if(!confirm('Isi 11 contoh soal?'))return; let contoh=[["Matematika","Berapakah 7 x 8 ?","54","56","58","60","B"],["IPA","Organ yang memompa darah adalah...","Paru-paru","Jantung","Hati","Ginjal","B"],["IPS","Ibukota Jawa Tengah adalah...","Surabaya","Bandung","Semarang","Yogyakarta","C"],["Bahasa Indonesia","Antonim 'rajin' adalah...","Giat","Malas","Tekun","Cepat","B"],["Bahasa Inggris","'Saya pergi ke sekolah'...","I go to school","I goes to school","I going school","I goed school","A"],["PPKn","Pancasila sila pertama...","Kemanusiaan yang adil","Ketuhanan Yang Maha Esa","Persatuan Indonesia","Keadilan sosial","B"],["Pendidikan Agama","Rukun Islam ada...","3","4","5","6","C"],["PJOK","Induk sepak bola dunia...","FIFA","FIBA","PSSI","IOC","A"],["Seni Budaya","Angklung dari...","Jawa Barat","Jawa Timur","Bali","Sumatra","A"],["Informatika","Fungsi CPU...","Menyimpan data","Memproses data","Menampilkan gambar","Menghubungkan internet","B"],["Prakarya","Bahan utama tempe...","Kedelai","Jagung","Beras","Kacang tanah","A"]]; contoh.forEach(c=>soalDB.push({mapel:c[0],kelas:'SEMUA',jenis:'pg',bab:'Contoh',tanya:c[1],a:c[2],b:c[3],c:c[4],d:c[5],kunci:c[6],kunciEssay:'',bobot:10})); await pushOnline('Soal',soalDB); renderAll(); alert('✅ 11 contoh soal online!'); }
+function renderDaftarSoal(){ let f=document.getElementById('filterSoalMapel').value; let list=soalDB.filter(s=>!f||s.mapel==f); document.getElementById('daftarSoal').innerHTML=list.map((s,i)=>{let idx=soalDB.indexOf(s); let isi=s.jenis=='pg'?`A. ${s.a} | B. ${s.b} | C. ${s.c} | D. ${s.d} <br><b style="color:#16a34a">Kunci: ${s.kunci}</b>`:`Essay: ${s.kunciEssay}`; return `<div class="soal-box"><span class="badge">${s.mapel} • ${s.kelas} • ${s.bab}</span><p><b>${i+1}. ${s.tanya}</b></p><p style="font-size:13px">${isi}</p><button class="btn r" onclick="hapusSoal(${idx})">Hapus</button></div>`;}).join('')||'<p style="text-align:center;color:#94a3b8">Belum ada soal.</p>'; }
+async function hapusSoal(i){soalDB.splice(i,1); await pushOnline('Soal',soalDB); renderAll();}
+async function hapusSemuaSoal(){if(confirm('Hapus semua soal?')){soalDB=[]; await pushOnline('Soal',soalDB); renderAll();}}
+async function simpanJadwal(){ let j={mapel:document.getElementById('jMapel').value,tanggal:document.getElementById('jTanggal').value,jam:document.getElementById('jJam').value,durasi:+document.getElementById('jDurasi').value||60,ket:document.getElementById('jKet').value,kelas:'SEMUA KELAS 7-8-9'}; jadwalDB.push(j); await pushOnline('Jadwal',jadwalDB); renderAll(); alert('✅ Jadwal online! Berlaku 7A-9B'); }
+function renderJadwal(){ let html=jadwalDB.map((j,i)=>`<div class="jadwal-item"><div><b>${j.mapel}</b> <span class="badge">7A-9B • Sama</span><br><span style="font-size:13px;color:#64748b">📅 ${j.tanggal} • 🕐 ${j.jam} • ⏳ ${j.durasi} menit • ${j.ket}</span></div><button class="btn r" onclick="hapusJadwal(${i})">Hapus</button></div>`).join(''); document.getElementById('listJadwal').innerHTML=html||'<p style="color:#94a3b8">Belum ada jadwal.</p>'; document.getElementById('jadwalHome').innerHTML=html||'<p style="color:#94a3b8">Belum ada jadwal.</p>'; }
+async function hapusJadwal(i){jadwalDB.splice(i,1); await pushOnline('Jadwal',jadwalDB); renderAll();}
+function showJadwalInfo(){ let m=document.getElementById('sMapel').value; let j=jadwalDB.find(x=>x.mapel==m); document.getElementById('jadwalInfo').innerHTML=j?`<div style="background:#dcfce7;padding:12px;border-radius:10px;font-size:14px">📅 <b>Jadwal ${m}:</b> ${j.tanggal} • ${j.jam} • ${j.durasi} menit • Berlaku 7A-9B<br>${j.ket}</div>`:`<div style="background:#fef9c3;padding:12px;border-radius:10px;font-size:14px">⚠️ Belum ada jadwal untuk ${m}. Tetap bisa latihan.</div>`; }
+function mulaiUjian(){ let nama=document.getElementById('sNama').value.trim(); if(!nama){alert('Isi nama dulu!');return;} namaAktif=nama; kelasAktif=document.getElementById('sKelas').value; let absen=document.getElementById('sAbsen').value||'-'; mapelAktif=document.getElementById('sMapel').value; let list=soalDB.filter(s=>s.mapel==mapelAktif&&(s.kelas=='SEMUA'||s.kelas==kelasAktif)); if(!list.length){alert('Belum ada soal untuk '+mapelAktif);return;} soalUjianAktif=[...list].sort(()=>Math.random()-0.5); jawabanSiswa={}; let j=jadwalDB.find(x=>x.mapel==mapelAktif); sisaDetik=(j?j.durasi:60)*60; document.getElementById('areaUjian').classList.remove('hidden'); document.getElementById('hasilUjian').classList.add('hidden'); document.getElementById('judulUjian').innerText=`Ujian ${mapelAktif} - ${namaAktif} (${kelasAktif} - ${absen})`; document.getElementById('progressUjian').innerText=`${soalUjianAktif.length} soal • Soal diacak`; document.getElementById('listSoalUjian').innerHTML=soalUjianAktif.map((s,i)=>{ if(s.jenis=='essay') return `<div class="soal-box"><b>${i+1}. ${s.tanya}</b><textarea rows="3" placeholder="Tulis jawaban..." onchange="jawabanSiswa[${i}]=this.value" style="margin-top:10px"></textarea></div>`; let opts=[{k:'A',t:s.a},{k:'B',t:s.b},{k:'C',t:s.c},{k:'D',t:s.d}].sort(()=>Math.random()-0.5); return `<div class="soal-box"><b>${i+1}. ${s.tanya}</b><br><span style="font-size:12px;color:#64748b">${s.bab}</span>${opts.map(o=>`<label class="opt"><input type="radio" name="soal${i}" value="${o.k}" onchange="pilihJawaban(${i},'${o.k}',this)"> ${o.k}. ${o.t}</label>`).join('')}</div>`; }).join(''); document.getElementById('areaUjian').scrollIntoView({behavior:'smooth'}); clearInterval(timerInterval); startTimer(); }
+function pilihJawaban(i,val,el){jawabanSiswa[i]=val; el.closest('.soal-box').querySelectorAll('.opt').forEach(e=>e.classList.remove('selected')); el.closest('.opt').classList.add('selected');}
+function startTimer(){timerInterval=setInterval(()=>{sisaDetik--; let m=Math.floor(sisaDetik/60); let d=sisaDetik%60; document.getElementById('timer').innerText=`⏰ Sisa: ${m}:${String(d).padStart(2,'0')} • ${mapelAktif}`; if(sisaDetik<=0){clearInterval(timerInterval); alert('Waktu habis! Auto kumpul.'); kumpulJawaban();}},1000);}
+async function kumpulJawaban(){ clearInterval(timerInterval); let benar=0, totalBobot=0, dapatBobot=0, total=soalUjianAktif.length; soalUjianAktif.forEach((s,i)=>{totalBobot+=+s.bobot||10; if(s.jenis=='pg'&&jawabanSiswa[i]==s.kunci){benar++; dapatBobot+=+s.bobot||10;} if(s.jenis=='essay'&&jawabanSiswa[i]&&jawabanSiswa[i].length>10){dapatBobot+=(+s.bobot||10)*0.8; benar+=0.8;}}); let nilai=totalBobot?Math.round(dapatBobot/totalBobot*100):0; let predikat=nilai>=90?'A - Sangat Baik':nilai>=80?'B - Baik':nilai>=75?'C - Cukup':'D - Remedial'; nilaiDB.push({nama:namaAktif,kelas:kelasAktif,mapel:mapelAktif,benar:Math.round(benar),salah:total-Math.round(benar),nilai:nilai,waktu:new Date().toLocaleString('id-ID')}); await pushOnline('Nilai',nilaiDB); renderAll(); document.getElementById('areaUjian').classList.add('hidden'); let h=document.getElementById('hasilUjian'); h.classList.remove('hidden'); document.getElementById('hasilDetail').innerHTML=`<p>${namaAktif} • ${kelasAktif} • ${mapelAktif}</p><div style="font-size:64px;font-weight:800;color:#4f46e5">${nilai}</div><p><b>${predikat}</b><br>Benar: ${Math.round(benar)} dari ${total}</p><p style="font-size:13px;color:#64748b">Nilai sudah masuk Rekap Guru online.</p>`; h.scrollIntoView({behavior:'smooth'}); }
+function renderRekap(){ let fm=document.getElementById('filterRekapMapel').value; let fk=document.getElementById('filterRekapKelas').value; let list=nilaiDB.filter(n=>(!fm||n.mapel==fm)&&(!fk||n.kelas==fk)).sort((a,b)=>b.nilai-a.nilai); document.getElementById('tbodyRekap').innerHTML=list.map((n,i)=>`<tr><td><b>${i+1}</b></td><td>${n.nama}</td><td>${n.kelas}</td><td>${n.mapel}</td><td style="color:#16a34a;font-weight:700">${n.benar}</td><td style="color:#dc2626">${n.salah}</td><td><b>${n.nilai}</b></td><td>${n.nilai>=90?'A':n.nilai>=80?'B':n.nilai>=75?'C':'D'}</td><td style="font-size:12px">${n.waktu}</td></tr>`).join('')||'<tr><td colspan="9" style="text-align:center;padding:20px">Belum ada nilai.</td></tr>'; let avg=nilaiDB.length?(nilaiDB.reduce((a,b)=>a+b.nilai,0)/nilaiDB.length).toFixed(1):0; document.getElementById('rataRekap').innerText=avg; document.getElementById('tuntasRekap').innerText=nilaiDB.filter(n=>n.nilai>=75).length+' / '+nilaiDB.length; }
+function exportRekap(){let csv='Nama,Kelas,Mapel,Benar,Salah,Nilai,Waktu\n';nilaiDB.forEach(n=>csv+=`"${n.nama}",${n.kelas},${n.mapel},${n.benar},${n.salah},${n.nilai},"${n.waktu}"\n`);let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='rekap-ujian-online.csv';a.click();}
+async function hapusRekap(){if(confirm('Hapus semua rekap?')){nilaiDB=[]; await pushOnline('Nilai',nilaiDB); renderAll();}}
+init();
+</script></body></html>
